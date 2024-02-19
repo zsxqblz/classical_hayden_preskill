@@ -1,0 +1,6 @@
+id, n_Asites, h_TFDsites, n_meas_start, n_meas_end, n_meas_step, nsim, comments
+1-4, 1, 2+i, 1, 2+i, 1, 100, HP mi ci A C
+5-8, 2, 2+i, 1, 2+i, 1, 100, HP mi ci A C
+9-11, 3, 2+i, 1, 2+i, 1, 100, HP mi ci A C
+13-16, 1, 2+i, 1, 2+i+n_Asites, 1, 100, HP mi ci A C
+17-20, 2, 2+i, 1, 2+i+n_Asites, 1, 100, HP mi ci A C

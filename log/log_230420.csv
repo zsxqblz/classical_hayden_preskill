@@ -1,0 +1,3 @@
+id, h_TFDsites, n_Asites, n_meas_start, n_meas_end, n_meas_step, nsim, comments
+1-8, 6, 1, 0, TFDsites, 1, 100, HP traj ith meas = x
+9-17, 6, 2, 0, TFDsites, 1, 100, HP traj ith meas = x

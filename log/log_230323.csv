@@ -1,0 +1,12 @@
+id, h_TFDsites, n_meas_start, n_meas_end, n_meas_step, nsim, comments
+1, 2, 0, 2, 1, 10, HP
+2, 3, 0, 3, 1, 10, HP
+3, 3, 0, 3, 1, 10, HP trunc
+4, 3, 0, 3, 1, 10, HP 2-renyi
+5, 4, 0, 4, 1, 10, HP 2-renyi
+6, 5, 0, 5, 1, 10, HP 2-renyi
+7, 4, 0, 4, 1, 10, HP 2-renyi
+8, 3, 0, 3, 1, 10, HP 2-renyi
+9, 3, 0, 3, 1, 1000, HP 2-renyi
+10, 4, 0, 4, 1, 1000, HP 2-renyi
+11, 5, 0, 5, 1, 1000, HP 2-renyi
