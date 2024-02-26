@@ -131,8 +131,8 @@ function rule30StagNoisyStep(stTraj,t,len,pertb)
     new_st = zeros(Bool,len)
     if mod(t,2)==1
         for i in 1:len
-            if pertb[i]
-                new_st[i] = rand(Bool)
+            if pertb[i] != 0
+                new_st[i] = sign(pertb[i])==+1
             elseif stTraj[i,t-1] && stTraj[i,t-2] && stTraj[mod1(i+1,len),t-1]
                 new_st[i] = false
             elseif stTraj[i,t-1] && stTraj[i,t-2] && !stTraj[mod1(i+1,len),t-1]
@@ -153,8 +153,8 @@ function rule30StagNoisyStep(stTraj,t,len,pertb)
         end
     else
         for i in 1:len
-            if pertb[i]
-                new_st[i] = rand(Bool)
+            if pertb[i] != 0
+                new_st[i] = sign(pertb[i])==+1
             elseif stTraj[mod1(i-1,len),t-1] && stTraj[i,t-2] && stTraj[i,t-1]
                 new_st[i] = false
             elseif stTraj[mod1(i-1,len),t-1] && stTraj[i,t-2] && !stTraj[i,t-1]
@@ -206,6 +206,7 @@ function ruleF1StagStep(stTraj,t,len)
     end
     return new_st
 end
+
 function ruleF2StagStep(stTraj,t,len)
     new_st = zeros(Bool,len)
     if mod(t,2)==1
@@ -253,6 +254,40 @@ function ruleF3StagStep(stTraj,t,len)
     else
         for i in 1:len
             if stTraj[mod1(i-1,len),t-1] && stTraj[i,t-1]
+                new_st[i] = !stTraj[i,t-2]
+            elseif stTraj[mod1(i-1,len),t-1] && !stTraj[i,t-1]
+                new_st[i] = stTraj[i,t-2]
+            elseif !stTraj[mod1(i-1,len),t-1] && stTraj[i,t-1]
+                new_st[i] = !stTraj[i,t-2]
+            else
+                new_st[i] = !stTraj[i,t-2]
+            end
+        end
+    end
+    return new_st
+end
+
+function ruleF3StagNoisyStep(stTraj,t,len,pertb)
+    new_st = zeros(Bool,len)
+    if mod(t,2)==1
+        for i in 1:len
+            if pertb[i] != 0
+                new_st[i] = sign(pertb[i])==+1
+            elseif stTraj[i,t-1] && stTraj[mod1(i+1,len),t-1]
+                new_st[i] = !stTraj[i,t-2]
+            elseif stTraj[i,t-1] && !stTraj[mod1(i+1,len),t-1]
+                new_st[i] = stTraj[i,t-2]
+            elseif !stTraj[i,t-1] && stTraj[mod1(i+1,len),t-1]
+                new_st[i] = !stTraj[i,t-2]
+            else
+                new_st[i] = !stTraj[i,t-2]
+            end
+        end
+    else
+        for i in 1:len
+            if pertb[i] != 0
+                new_st[i] = sign(pertb[i])==+1
+            elseif stTraj[mod1(i-1,len),t-1] && stTraj[i,t-1]
                 new_st[i] = !stTraj[i,t-2]
             elseif stTraj[mod1(i-1,len),t-1] && !stTraj[i,t-1]
                 new_st[i] = stTraj[i,t-2]
@@ -314,10 +349,86 @@ function rule54StagPertbStep(stTraj,t,len,pertb)
     return new_st
 end
 
+function rule54StagNoisyStep(stTraj,t,len,pertb)
+    new_st = zeros(Bool,len)
+    if mod(t,2)==1
+        for i in 1:len
+            if pertb[i] != 0
+                new_st[i] = sign(pertb[i])==+1
+            elseif stTraj[i,t-1] && stTraj[i,t-2] && stTraj[mod1(i+1,len),t-1]
+                new_st[i] = false
+            elseif stTraj[i,t-1] && stTraj[i,t-2] && !stTraj[mod1(i+1,len),t-1]
+                new_st[i] = false
+            elseif stTraj[i,t-1] && !stTraj[i,t-2] && stTraj[mod1(i+1,len),t-1]
+                new_st[i] = true
+            elseif stTraj[i,t-1] && !stTraj[i,t-2] && !stTraj[mod1(i+1,len),t-1]
+                new_st[i] = true
+            elseif !stTraj[i,t-1] && stTraj[i,t-2] && stTraj[mod1(i+1,len),t-1]
+                new_st[i] = false
+            elseif !stTraj[i,t-1] && stTraj[i,t-2] && !stTraj[mod1(i+1,len),t-1]
+                new_st[i] = true
+            elseif !stTraj[i,t-1] && !stTraj[i,t-2] && stTraj[mod1(i+1,len),t-1]
+                new_st[i] = true
+            else
+                new_st[i] = false
+            end
+        end
+    else
+        for i in 1:len
+            if pertb[i] != 0
+                new_st[i] = sign(pertb[i])==+1
+            elseif stTraj[mod1(i-1,len),t-1] && stTraj[i,t-2] && stTraj[i,t-1]
+                new_st[i] = false
+            elseif stTraj[mod1(i-1,len),t-1] && stTraj[i,t-2] && !stTraj[i,t-1]
+                new_st[i] = false
+            elseif stTraj[mod1(i-1,len),t-1] && !stTraj[i,t-2] && stTraj[i,t-1]
+                new_st[i] = true
+            elseif stTraj[mod1(i-1,len),t-1] && !stTraj[i,t-2] && !stTraj[i,t-1]
+                new_st[i] = true
+            elseif !stTraj[mod1(i-1,len),t-1] && stTraj[i,t-2] && stTraj[i,t-1]
+                new_st[i] = false
+            elseif !stTraj[mod1(i-1,len),t-1] && stTraj[i,t-2] && !stTraj[i,t-1]
+                new_st[i] = true
+            elseif !stTraj[mod1(i-1,len),t-1] && !stTraj[i,t-2] && stTraj[i,t-1]
+                new_st[i] = true
+            else
+                new_st[i] = false
+            end
+        end
+    end
+    return new_st
+end
+
 function rule30Step(st,len)
     new_st = zeros(Bool,len)
     for i in 1:len
         if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        else
+            new_st[i] = false
+        end
+    end
+    return new_st
+end
+
+function rule30NoisyStep(st,len,pertb)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if pertb[i] != 0
+            new_st[i] = sign(pertb[i])==+1
+        elseif st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
             new_st[i] = false
         elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
             new_st[i] = false
@@ -375,6 +486,32 @@ function simCA(ruleStep,stB,nAsites,nBsites,nsteps)
     return stTraj
 end
 
+function simPertbCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+    stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^nAsites)
+    for stA_num = 0:2^nAsites-1
+        stA = Bool.(digits(stA_num, base=2,pad=nAsites))
+        st = vcat(stA, stB)
+        for t = 1:nsteps
+            stTraj[:,t,stA_num+1] = ruleStep(st,nAsites+nBsites,pertbProf[t,:])
+            st = stTraj[:,t,stA_num+1]
+        end
+    end
+    return stTraj
+end
+
+function simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+    stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^nAsites)
+    for stA_num = 0:2^nAsites-1
+        stA = Bool.(digits(stA_num, base=2,pad=nAsites))
+        st = vcat(stA, stB)
+        for t = 1:nsteps
+            stTraj[:,t,stA_num+1] = ruleStep(st,nAsites+nBsites,pertbProf[t,:])
+            st = stTraj[:,t,stA_num+1]
+        end
+    end
+    return stTraj
+end
+
 function simStagCA(ruleStep,stB1,stB2,nAsites,nBsites,nsteps)
     stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^(2*nAsites))
     for stA_num1 = 0:2^nAsites-1, stA_num2 = 0:2^nAsites-1
@@ -395,6 +532,25 @@ function simStagCA(ruleStep,stB1,stB2,nAsites,nBsites,nsteps)
 end
 
 function simStagPertbCA(ruleStep,stB1,stB2,pertbProf,nAsites,nBsites,nsteps)
+    stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^(2*nAsites))
+    for stA_num1 = 0:2^nAsites-1, stA_num2 = 0:2^nAsites-1
+        stA_num = stA_num1 + 2^nAsites*stA_num2
+        stA1 = Bool.(digits(stA_num1, base=2,pad=nAsites))
+        stA2 = Bool.(digits(stA_num2, base=2,pad=nAsites))
+        stTraj[:,1,stA_num+1] = vcat(stA1, stB1)
+        stTraj[:,2,stA_num+1] = vcat(stA2, stB2)
+        for t = 3:nsteps
+            stTraj[:,t,stA_num+1] = ruleStep(stTraj[:,:,stA_num+1],t,nAsites+nBsites,pertbProf[t,:])
+            # if sum(stTraj[:,t,stA_num+1]) == 0
+            #     @show stTraj[:,t,stA_num+1]
+            #     throw(error())
+            # end
+        end
+    end
+    return stTraj
+end
+
+function simStagNoisyCA(ruleStep,stB1,stB2,pertbProf,nAsites,nBsites,nsteps)
     stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^(2*nAsites))
     for stA_num1 = 0:2^nAsites-1, stA_num2 = 0:2^nAsites-1
         stA_num = stA_num1 + 2^nAsites*stA_num2
@@ -523,6 +679,115 @@ function scanMeasPertbStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmea
     S_ave_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length)
     S_std_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length)
     for  (pertb_idx,pertb) in enumerate(pertb_l), (meas_idx, nmeas) in enumerate(nmeas_l), t = 1:Int(nsteps/2)
+        S_ave_arr[t,meas_idx,pertb_idx] = mean(S_arr[t,meas_idx,pertb_idx,:])
+        S_std_arr[t,meas_idx,pertb_idx] = std(S_arr[t,meas_idx,pertb_idx,:])
+    end
+
+    return S_ave_arr, S_std_arr
+end
+
+function scanMeasNoisyStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length,nstB)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB1 = BitArray(rand(Bool,nBsites))
+        stB2 = BitArray(rand(Bool,nBsites))
+        stTraj = simStagNoisyCA(ruleStep,stB1,stB2,pertbProf,nAsites,nBsites,nsteps)
+        for  t = 2:2:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            measInt = zeros(Int,2^(2*nAsites))
+            for i = 1:2^(2*nAsites)
+                bitarr1 = stTraj[idx_start:idx_end,t-1,i]
+                bitarr2 = stTraj[idx_start:idx_end,t,i]
+                measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[Int(t/2),meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+        end
+    end
+
+    S_ave_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length)
+    S_std_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length)
+    for  (pertb_idx,pertb) in enumerate(pertb_l), (meas_idx, nmeas) in enumerate(nmeas_l), t = 1:Int(nsteps/2)
+        S_ave_arr[t,meas_idx,pertb_idx] = mean(S_arr[t,meas_idx,pertb_idx,:])
+        S_std_arr[t,meas_idx,pertb_idx] = std(S_arr[t,meas_idx,pertb_idx,:])
+    end
+
+    return S_ave_arr, S_std_arr
+end
+
+function scanMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_arr = zeros(nsteps,nmeas_length,pertb_length,nstB)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+        for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            measInt = zeros(Int,2^(nAsites))
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[idx_start:idx_end,t,i]
+                measInt[i] = bitarr_to_int(bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[t,meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_ave_arr = zeros(nsteps,nmeas_length,pertb_length)
+    S_std_arr = zeros(nsteps,nmeas_length,pertb_length)
+    for  (pertb_idx,pertb) in enumerate(pertb_l), (meas_idx, nmeas) in enumerate(nmeas_l), t = 1:nsteps
+        S_ave_arr[t,meas_idx,pertb_idx] = mean(S_arr[t,meas_idx,pertb_idx,:])
+        S_std_arr[t,meas_idx,pertb_idx] = std(S_arr[t,meas_idx,pertb_idx,:])
+    end
+
+    return S_ave_arr, S_std_arr
+end
+
+function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_arr = zeros(nsteps,nmeas_length,pertb_length,nstB)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+        for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            meas_site_idx = sample(collect(1:(nAsites+nBsites)),nmeas,replace=false)
+            measInt = zeros(Int,2^(nAsites))
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[meas_site_idx,t,i]
+                measInt[i] = bitarr_to_int(bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[t,meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_ave_arr = zeros(nsteps,nmeas_length,pertb_length)
+    S_std_arr = zeros(nsteps,nmeas_length,pertb_length)
+    for  (pertb_idx,pertb) in enumerate(pertb_l), (meas_idx, nmeas) in enumerate(nmeas_l), t = 1:nsteps
         S_ave_arr[t,meas_idx,pertb_idx] = mean(S_arr[t,meas_idx,pertb_idx,:])
         S_std_arr[t,meas_idx,pertb_idx] = std(S_arr[t,meas_idx,pertb_idx,:])
     end

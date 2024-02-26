@@ -21,24 +21,48 @@ let
     @show measInt, stTraj[1:2,nsteps,1],stTraj[1:2,nsteps,2]
 end
 
+# scanNoisyMeas
+let 
+    run(`clear`)
+    i=0
+    nAsites = 1+i
+    nBsites = 100
+    nsteps = 500
+    nstB = 100
+    nmeas_start = 1
+    nmeas_end = 98
+    nmeas_step = 1
+    pertb_start = 0
+    pertb_end = 1
+    pertb_step = 0.05
+    idx_start = 3
+
+    S_ave_arr, S_std_arr = scanRndMeasNoisyCA(rule30NoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+
+    save3DData(nstep_l,nmeas_l,pertb_l,S_ave_arr,S_std_arr,string("data/240219/240219_",idx_start+i))
+end
 
 # scanPertbMeasStag
 let 
     run(`clear`)
     i=0
     nAsites = 1+i
-    nBsites = 100
-    nsteps = 1000
+    nBsites = 10
+    nsteps = 2000
     nstB = 100
     nmeas_start = 1
-    nmeas_end = 50
+    nmeas_end = 10
     nmeas_step = 1
     pertb_start = 0
     pertb_end = 1
     pertb_step = 0.05
-    idx_start = 1
+    idx_start = 5
 
-    S_ave_arr, S_std_arr = scanMeasPertbStagCA(rule30StagNoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    S_ave_arr, S_std_arr = scanMeasNoisyStagCA(ruleF3StagNoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
 
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nstep_l = floor.(Int,collect(range(1,stop=Int(nsteps/2),step=1)))
@@ -47,45 +71,45 @@ let
     save3DData(nstep_l,nmeas_l,pertb_l,S_ave_arr,S_std_arr,string("data/240219/240219_",idx_start+i))
 end
 
-# scanMeasStag
+# scanMeas
 let 
     run(`clear`)
-    for i = 0:0
+    for i = 0:9
         nAsites = 1+i
-        nBsites = 100
-        nsteps = 1000
+        nBsites = 9-i
+        nsteps = 2^(nAsites+nBsites)
         nstB = 100
         nmeas_start = 1
         nmeas_end = 10
         nmeas_step = 1
-        idx_start = 31
+        idx_start = 6
 
-        S_ave_arr, S_std_arr = scanMeasCA(rule110Step,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+        S_ave_arr, S_std_arr = scanRndMeasCA(rule30Step,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
 
         nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
         nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
-        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240214/240214_",idx_start+i))
+        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240219/240219_",idx_start+i))
     end
 end
 
 # scanMeasStag
 let 
     run(`clear`)
-    for i = 0:0
+    for i = 0:9
         nAsites = 1+i
         nBsites = 100
-        nsteps = 1000
+        nsteps = 500
         nstB = 100
         nmeas_start = 1
-        nmeas_end = 5
+        nmeas_end = nAsites+5
         nmeas_step = 1
-        idx_start = 29
+        idx_start = 1
 
-        S_ave_arr, S_std_arr = scanMeasStagCA(ruleF3StagStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+        S_ave_arr, S_std_arr = scanMeasStagCA(rule54StagStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
 
         nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
         nstep_l = floor.(Int,collect(range(1,stop=Int(nsteps/2),step=1)))
-        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240214/240214_",idx_start+i))
+        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240226/240226_",idx_start+i))
     end
 end
 
