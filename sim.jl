@@ -649,6 +649,32 @@ function scanMeasStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_ste
     return S_ave_arr, S_std_arr
 end
 
+function scanMeasStagCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+
+    S_arr = zeros(Int(nsteps/2),nmeas_length)
+    @showprogress for stB_idx = 1:nstB
+        stB1 = BitArray(rand(Bool,nBsites))
+        stB2 = BitArray(rand(Bool,nBsites))
+        stTraj = simStagCA(ruleStep,stB1,stB2,nAsites,nBsites,nsteps)
+        for  t = 2:2:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            measInt = zeros(Int,2^(2*nAsites))
+            for i = 1:2^(2*nAsites)
+                bitarr1 = stTraj[idx_start:idx_end,t-1,i]
+                bitarr2 = stTraj[idx_start:idx_end,t,i]
+                measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[Int(t/2),meas_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+        end
+    end
+
+    return S_arr / nstB
+end
+
 function scanMeasPertbStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nmeas_length = length(nmeas_l)
