@@ -10,9 +10,11 @@ const nmeas_end = parse(Int64,ARGS[6])
 const nmeas_step = parse(Int64,ARGS[7])
 const file_name = ARGS[8]
 
-S_ave_arr, S_std_arr = scanMeasStagCA(rule54StagStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+# S_ave_arr, S_std_arr = scanMeasStagCA(rule54StagStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+S_ave_arr = scanMeasStagCAME(rule54StagStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
 
 nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
 nstep_l = floor.(Int,collect(range(1,stop=Int(nsteps/2),step=1)))
 
-save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,file_name)
+# save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,file_name)
+save2DData(nstep_l,nmeas_l,S_ave_arr,file_name)

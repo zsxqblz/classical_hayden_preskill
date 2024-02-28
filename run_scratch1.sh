@@ -21,7 +21,7 @@ let pertb_end=1
 let pertb_step=0.005
 
 let id=1
-let date=240219
+let date=240226
 
 echo $nAsites 
 echo $nBsites
