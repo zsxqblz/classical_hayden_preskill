@@ -11,3 +11,4 @@ using Distributions: sample
 using DataFrames
 using CSV
 using Profile
+using LinearAlgebra: dot

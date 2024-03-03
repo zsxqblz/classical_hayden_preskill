@@ -602,7 +602,7 @@ function scanMeasCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,ns
                 measInt[i] = bitarr_to_int(stTraj[idx_start:idx_end,t,i])
             end
             measOccurance = countOccurance(measInt)
-            S_arr[t,meas_idx,stB_idx] += -mean(log2.(measOccurance)) + nAsites
+            S_arr[t,meas_idx,stB_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
         end
     end
 
@@ -635,7 +635,7 @@ function scanMeasStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_ste
                 measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
             end
             measOccurance = countOccurance(measInt)
-            S_arr[Int(t/2),meas_idx,stB_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+            S_arr[Int(t/2),meas_idx,stB_idx] += -dot(measOccurance./2^(2*nAsites), log2.(measOccurance)) + 2*nAsites
         end
     end
 
@@ -668,8 +668,9 @@ function scanMeasStagCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_s
                 measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
             end
             measOccurance = countOccurance(measInt)
-            S_arr[Int(t/2),meas_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+            S_arr[Int(t/2),meas_idx] += -dot(measOccurance./2^(2*nAsites), log2.(measOccurance)) + 2*nAsites
         end
+        GC.gc()
     end
 
     return S_arr / nstB
@@ -698,7 +699,7 @@ function scanMeasPertbStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmea
                 measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
             end
             measOccurance = countOccurance(measInt)
-            S_arr[Int(t/2),meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+            S_arr[Int(t/2),meas_idx,pertb_idx,stB_idx] += -dot(measOccurance./2^(2*nAsites), log2.(measOccurance)) + 2*nAsites
         end
     end
 
@@ -736,7 +737,7 @@ function scanMeasNoisyStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmea
                 measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
             end
             measOccurance = countOccurance(measInt)
-            S_arr[Int(t/2),meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+            S_arr[Int(t/2),meas_idx,pertb_idx,stB_idx] += -dot(measOccurance./2^(2*nAsites), log2.(measOccurance)) + 2*nAsites
         end
     end
 
@@ -772,7 +773,7 @@ function scanMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_st
                 measInt[i] = bitarr_to_int(bitarr)
             end
             measOccurance = countOccurance(measInt)
-            S_arr[t,meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + nAsites
+            S_arr[t,meas_idx,pertb_idx,stB_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
         end
     end
 
@@ -807,7 +808,7 @@ function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas
                 measInt[i] = bitarr_to_int(bitarr)
             end
             measOccurance = countOccurance(measInt)
-            S_arr[t,meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + nAsites
+            S_arr[t,meas_idx,pertb_idx,stB_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
         end
     end
 
@@ -836,7 +837,7 @@ function scanRndMeasCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step
                 measInt[i] = bitarr_to_int(stTraj[meas_site_idx,t,i])
             end
             measOccurance = countOccurance(measInt)
-            S_arr[t,meas_idx,stB_idx] += -mean(log2.(measOccurance)) + nAsites
+            S_arr[t,meas_idx,stB_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
         end
     end
 
@@ -868,7 +869,7 @@ function scanRndMeasStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_
                 measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
             end
             measOccurance = countOccurance(measInt)
-            S_arr[Int(t/2),meas_idx,stB_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+            S_arr[Int(t/2),meas_idx,stB_idx] += -dot(measOccurance./2^(2*nAsites), log2.(measOccurance)) + 2*nAsites
         end
     end
 
