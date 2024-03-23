@@ -76,19 +76,19 @@ let
     run(`clear`)
     for i = 0:9
         nAsites = 1+i
-        nBsites = 100
-        nsteps = 500
+        nBsites = 0
+        nsteps = 250
         nstB = 100
         nmeas_start = 1
-        nmeas_end = 20
+        nmeas_end = nAsites
         nmeas_step = 1
         idx_start = 31
 
-        S_ave_arr, S_std_arr = scanMeasCA(rule30Step,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+        S_ave_arr, S_std_arr = scanRndMeasCA(rule60Step,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
 
         nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
         nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
-        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240219/240219_",idx_start+i))
+        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240311/240311_",idx_start+i))
     end
 end
 
@@ -164,21 +164,23 @@ end
 # scanRndMeasCA
 let 
     run(`clear`)
-    for i = 0:4
-        nAsites = 8+i
-        nBsites = 0
-        nsteps = 500
-        nstB = 100
-        nmeas_start = 1
-        nmeas_end = nAsites+nBsites
-        nmeas_step = 1
-        idx_start = 1
+    for j = 1:4
+        for i = 1:10
+            nAsites = i
+            nBsites = 20*i
+            nsteps = 250
+            nstB = 100
+            nmeas_start = 1
+            nmeas_end = nAsites+10
+            nmeas_step = 1
+            idx_start = 30+10*j
 
-        S_ave_arr, S_std_arr = scanRndMeasCA(rule110Step,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+            S_ave_arr, S_std_arr = scanMeasCA(rule110Step,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
 
-        nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
-        nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
-        save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240303/240303_",idx_start+i))
+            nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+            nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
+            save2DData(nstep_l,nmeas_l,S_ave_arr,S_std_arr,string("data/240303/240303_",idx_start+i))
+        end
     end
 end
 
@@ -193,12 +195,12 @@ let
     @showprogress for st_num = 0:2^(nAsites+nBsites)-1
         st = Bool.(digits(st_num, base=2,pad=nAsites+nBsites))
         for t = 1:nsteps
-            stTraj[:,t,st_num+1] = rule30Step(st,nAsites+nBsites)
+            stTraj[:,t,st_num+1] = rule110Step(st,nAsites+nBsites)
             st = stTraj[:,t,st_num+1]
         end
     end
     stTraj = Int.(stTraj)
-    save3DData(collect(1:(nAsites+nBsites)),collect(1:nsteps),collect(0:2^(nAsites+nBsites)-1),stTraj,"data/240214/rule30_6")
+    save3DData(collect(1:(nAsites+nBsites)),collect(1:nsteps),collect(0:2^(nAsites+nBsites)-1),stTraj,"data/240303/rule110_5")
 end
 
 let 

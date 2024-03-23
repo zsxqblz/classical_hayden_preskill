@@ -423,6 +423,54 @@ function rule30Step(st,len)
     return new_st
 end
 
+function rule45Step(st,len)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        else
+            new_st[i] = true
+        end
+    end
+    return new_st
+end
+
+function rule60Step(st,len)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        else
+            new_st[i] = false
+        end
+    end
+    return new_st
+end
+
 function rule30NoisyStep(st,len,pertb)
     new_st = zeros(Bool,len)
     for i in 1:len
