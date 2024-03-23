@@ -835,6 +835,44 @@ function scanMeasNoisyStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmea
     return S_ave_arr, S_std_arr
 end
 
+
+function scanRndMeasNoisyStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length,nstB)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB1 = BitArray(rand(Bool,nBsites))
+        stB2 = BitArray(rand(Bool,nBsites))
+        stTraj = simStagPertbCA(ruleStep,stB1,stB2,pertbProf,nAsites,nBsites,nsteps)
+        for  t = 2:2:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            meas_site_idx = sample(collect(1:(nAsites+nBsites)),nmeas,replace=false)
+            measInt = zeros(Int,2^(2*nAsites))
+            for i = 1:2^(2*nAsites)
+                bitarr1 = stTraj[meas_site_idx,t-1,i]
+                bitarr2 = stTraj[meas_site_idx,t,i]
+                measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[Int(t/2),meas_idx,pertb_idx,stB_idx] += -mean(log2.(measOccurance)) + 2*nAsites
+        end
+    end
+
+    S_ave_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length)
+    S_std_arr = zeros(Int(nsteps/2),nmeas_length,pertb_length)
+    for  (pertb_idx,pertb) in enumerate(pertb_l), (meas_idx, nmeas) in enumerate(nmeas_l), t = 1:Int(nsteps/2)
+        S_ave_arr[t,meas_idx,pertb_idx] = mean(S_arr[t,meas_idx,pertb_idx,:])
+        S_std_arr[t,meas_idx,pertb_idx] = std(S_arr[t,meas_idx,pertb_idx,:])
+    end
+
+    return S_ave_arr, S_std_arr
+end
+
 function scanMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nmeas_length = length(nmeas_l)

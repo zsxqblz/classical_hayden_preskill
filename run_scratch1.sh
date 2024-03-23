@@ -9,19 +9,20 @@
 #SBATCH --array=0-9
 #SBATCH --mail-user=yz4281@princeton.edu
 
-let nAsites=1
-let nBsites=100
+let i=3
+let "nAsites=1"
+let "nBsites=60+20*i"
 let nsteps=1000
 let nstB=10
 let nmeas_start=1
-let nmeas_end=50
+let nmeas_end=nAsites+nBsites
 let nmeas_step=1
 let pertb_start=0
 let pertb_end=1
 let pertb_step=0.005
 
-let id=1
-let date=240226
+let id=0+i
+let date=240323
 
 echo $nAsites 
 echo $nBsites
