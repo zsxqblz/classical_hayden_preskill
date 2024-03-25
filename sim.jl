@@ -940,6 +940,37 @@ function scanMeasNoisyCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_
     return S_arr
 end
 
+function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_arr = zeros(nmeas_length,pertb_length)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+        for (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            measInt = zeros(Int,2^(nAsites))
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[idx_start:idx_end,end,i]
+                measInt[i] = bitarr_to_int(bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_arr = S_arr ./ nstB
+
+    return S_arr
+end
+
 function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nmeas_length = length(nmeas_l)
@@ -973,6 +1004,36 @@ function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas
     end
 
     return S_ave_arr, S_std_arr
+end
+
+function scanRndMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_arr = zeros(nmeas_length,pertb_length)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+        for (meas_idx, nmeas) in enumerate(nmeas_l)
+            meas_site_idx = sample(collect(1:(nAsites+nBsites)),nmeas,replace=false)
+            measInt = zeros(Int,2^(nAsites))
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[meas_site_idx,end,i]
+                measInt[i] = bitarr_to_int(bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_arr = S_arr ./ nstB
+
+    return S_arr
 end
 
 function scanRndMeasCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)

@@ -24,26 +24,50 @@ end
 # scanNoisyMeas
 let 
     run(`clear`)
-    i=0
-    nAsites = 1
-    nBsites = 8
-    nsteps = 2
+    i=1
+    nAsites = i
+    nBsites = 1000
+    nsteps = 1000
     nstB = 100
     nmeas_start = 1
-    nmeas_end = 98
+    nmeas_end = 1000
     nmeas_step = 1
-    pertb_start = 0
-    pertb_end = 1
-    pertb_step = 0.05
-    idx_start = 3
+    pertb_start = 0.0
+    pertb_end = 0.5
+    pertb_step = 0.01
+    idx_start = 4
 
-    S_ave_arr, S_std_arr = scanRndMeasNoisyCA(rule30NoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    S_ave_arr = scanMeasNoisyCAME(rule30NoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
 
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
     pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
 
-    save3DData(nstep_l,nmeas_l,pertb_l,S_ave_arr,S_std_arr,string("data/240219/240219_",idx_start+i))
+    save3DData(nstep_l,nmeas_l,pertb_l,S_ave_arr,string("data/240323/240323_",idx_start+i))
+end
+
+# scanNoisyMeasOneDepth
+let 
+    run(`clear`)
+    i=1
+    nAsites = i
+    nBsites = 1000
+    nsteps = 1000
+    nstB = 1000
+    nmeas_start = 1
+    nmeas_end = 500
+    nmeas_step = 1
+    pertb_start = 0.2
+    pertb_end = 0.25
+    pertb_step = 0.001
+    idx_start = 8
+
+    S_ave_arr = scanRndMeasNoisyCAOneDepth(rule30NoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+
+    save2DData(nmeas_l,pertb_l,S_ave_arr,string("data/240323/240323_",idx_start+i))
 end
 
 # scanPertbMeasStag
