@@ -2,8 +2,8 @@ import numpy as np
 from tqdm import tqdm
 import os.path
 
-for i in range(11,12):
-    file_name = "data/240226/240226_n%d_"%(i)
+for i in range(1,6):
+    file_name = "data/240323/240323_n%d_"%(i)
 
     job_arr_start = 0
     job_arr_end = 9
@@ -23,20 +23,30 @@ for i in range(11,12):
             y_l = np.loadtxt(job_name+"_scany.csv",skiprows=1,delimiter=",")
             z_l = np.loadtxt(job_name+"_scanz.csv",skiprows=1,delimiter=",")
             data_raw =  np.loadtxt(job_name+"_data.csv",skiprows=1,delimiter=",")
-            x_length = 2*len(x_l)
+            x_length = len(x_l)
             y_length = len(y_l)
             z_length = len(z_l)
-            data_ave_l = data_raw[:,0].reshape((z_length,y_length,x_length))
-            data_std_l = data_raw[:,1].reshape((z_length,y_length,x_length))
+            data_ave_l = data_raw.reshape((z_length,y_length,x_length))
+            # data_ave_l = data_raw[:,0].reshape((z_length,y_length,x_length))
+            # data_std_l = data_raw[:,1].reshape((z_length,y_length,x_length))
 
         else:
             data_raw =  np.loadtxt(job_name+"_data.csv",skiprows=1,delimiter=",")
-            data_ave_l = data_ave_l + data_raw[:,0].reshape((z_length,y_length,x_length))
-            data_std_l = data_std_l + data_raw[:,1].reshape((z_length,y_length,x_length))
+            data_ave_l = data_ave_l + data_raw.reshape((z_length,y_length,x_length))
+            # data_ave_l = data_ave_l + data_raw[:,0].reshape((z_length,y_length,x_length))
+            # data_std_l = data_std_l + data_raw[:,1].reshape((z_length,y_length,x_length))
 
         cnt = cnt + 1
 
     data_ave_l = data_ave_l / cnt
-    data_std_l = data_std_l / cnt
+    # data_std_l = data_std_l / cnt
 
-    np.savez(file_name+"pp.npz",x_l=x_l,y_l=y_l,z_l=z_l,data_ave_l=data_ave_l,data_std_l=data_std_l)
+    print(cnt)
+
+    np.savez(file_name+"pp.npz",
+        x_l=x_l,
+        y_l=y_l,
+        z_l=z_l,
+        data_ave_l=data_ave_l,
+        # data_std_l=data_std_l
+    )
