@@ -13,7 +13,7 @@ const pertb_end = parse(Float64,ARGS[9])
 const pertb_step = parse(Float64,ARGS[10])
 const file_name = ARGS[11]
 
-S_ave_arr = scanRndMeasNoisyCAOneDepth(rule30NoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+S_ave_arr = scanMeasNoisyCAOneDepth(rule30NoisyStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
 
 nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
 # nstep_l = floor.(Int,collect(range(1,stop=nsteps,step=1)))
