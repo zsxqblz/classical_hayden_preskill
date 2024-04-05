@@ -3,7 +3,7 @@ include("sim.jl")
 
 let 
     run(`clear`)
-    for i = 4:4
+    for i = 16:16
         nAsites = 1
         nBsites = 100*i
         nsteps = 50*i

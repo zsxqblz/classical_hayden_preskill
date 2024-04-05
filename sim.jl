@@ -1085,7 +1085,9 @@ function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,
     pertb_length = length(pertb_l)
 
     S_ave_arr = zeros(nmeas_length,pertb_length)
-    S_std_arr = zeros(nmeas_length,pertb_length)
+    S_snd_arr = zeros(nmeas_length,pertb_length)
+    S_trd_arr = zeros(nmeas_length,pertb_length)
+    S_fth_arr = zeros(nmeas_length,pertb_length)
     @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
         pertbProf = rand(nsteps,nAsites+nBsites)
         pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
@@ -1104,16 +1106,17 @@ function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,
             end
             measOccurance = countOccurance(measInt)
             S_ave_arr[meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
-            S_std_arr[meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^2
+            S_snd_arr[meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^2
+            S_trd_arr[meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^3
+            S_fth_arr[meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^4
         end
     end
     S_ave_arr = S_ave_arr ./ nstB
-    S_std_arr = S_std_arr ./ nstB
-    S_std_arr -= S_ave_arr.^2
-    S_std_arr = sqrt.(S_std_arr./nstB)
-    
+    S_snd_arr = S_snd_arr ./ nstB
+    S_trd_arr = S_trd_arr ./ nstB
+    S_fth_arr = S_fth_arr ./ nstB    
 
-    return S_ave_arr, S_std_arr
+    return S_ave_arr, S_snd_arr, S_trd_arr, S_fth_arr
 end
 
 function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
@@ -1240,6 +1243,22 @@ function scanRndMeasStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_
     end
 
     return S_ave_arr, S_std_arr
+end
+
+function save2DData(scanx_l,scany_l,data_ave_arr,data_snd_arr,data_trd_arr,data_fth_arr,file_name)
+    df_scanx = DataFrame()
+    df_scany = DataFrame()
+    df_data = DataFrame()
+    df_scanx.scanx_l = scanx_l
+    df_scany.scany_l = scany_l
+    df_data.data_ave_l = collect(Iterators.flatten(data_ave_arr)) 
+    df_data.data_snd_l = collect(Iterators.flatten(data_snd_arr))
+    df_data.data_trd_l = collect(Iterators.flatten(data_trd_arr)) 
+    df_data.data_fth_l = collect(Iterators.flatten(data_fth_arr)) 
+
+    CSV.write(file_name*"_scanx.csv", df_scanx)
+    CSV.write(file_name*"_scany.csv", df_scany)
+    CSV.write(file_name*"_data.csv", df_data)
 end
 
 function save2DData(scanx_l,scany_l,cmi_ave_arr,cmi_std_arr,file_name)
