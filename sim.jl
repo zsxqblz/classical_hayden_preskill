@@ -35,6 +35,55 @@ function rule54Step(st,len)
     return new_st
 end
 
+function rule19Step(st,len)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        else
+            new_st[i] = true
+        end
+    end
+    return new_st
+end
+
+function rule14Step(st,len)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        else
+            new_st[i] = true
+        end
+    end
+    return new_st
+end
+
+
 function rule54StagStep(stTraj,t,len)
     new_st = zeros(Bool,len)
     if mod(t,2)==1
@@ -423,6 +472,54 @@ function rule30Step(st,len)
     return new_st
 end
 
+function rule30OBCStep(st,len)
+    new_st = zeros(Bool,len)
+    # left zero boundary
+    i = 1
+    if st[i] && st[mod1(i+1,len)]
+        new_st[i] = true
+    elseif st[i] && !st[mod1(i+1,len)]
+        new_st[i] = true
+    elseif !st[i] && st[mod1(i+1,len)]
+        new_st[i] = true
+    elseif !st[i] && !st[mod1(i+1,len)]
+        new_st[i] = false
+    end
+
+    for i in 2:len-1
+        if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        else
+            new_st[i] = false
+        end
+    end
+    # right zero boundary
+    i = len-1
+    if st[i] && st[mod1(i+1,len)]
+        new_st[i] = false
+    elseif st[i] && !st[mod1(i+1,len)]
+        new_st[i] = false
+    elseif !st[i] && st[mod1(i+1,len)]
+        new_st[i] = true
+    elseif !st[i] && !st[mod1(i+1,len)]
+        new_st[i] = false
+    end
+
+    return new_st
+end
+
 function rule45Step(st,len)
     new_st = zeros(Bool,len)
     for i in 1:len
@@ -645,9 +742,14 @@ function scanMeasCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,ns
         for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
             idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
             idx_end = idx_start + nmeas - 1
-            measInt = zeros(Int,2^nAsites)
-            for i = 1:2^nAsites
-                measInt[i] = bitarr_to_int(stTraj[idx_start:idx_end,t,i])
+            # measInt = zeros(Int,2^nAsites)
+            # for i = 1:2^nAsites
+            #     measInt[i] = bitarr_to_int(stTraj[idx_start:idx_end,t,i])
+            # end
+            measInt = Vector{Vector{Bool}}(undef,0)
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[idx_start:idx_end,end,i]
+                push!(measInt,bitarr)
             end
             measOccurance = countOccurance(measInt)
             S_arr[t,meas_idx,stB_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
@@ -664,6 +766,36 @@ function scanMeasCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,ns
     return S_ave_arr, S_std_arr
 end
 
+function scanMeasCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+
+    S_arr = zeros(nsteps,nmeas_length)
+    @showprogress for stB_idx = 1:nstB
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simCA(ruleStep,stB,nAsites,nBsites,nsteps)
+        for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            # measInt = zeros(Int,2^nAsites)
+            # for i = 1:2^nAsites
+            #     measInt[i] = bitarr_to_int(stTraj[idx_start:idx_end,t,i])
+            # end
+            measInt = Vector{Vector{Bool}}(undef,0)
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[idx_start:idx_end,t,i]
+                push!(measInt,bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[t,meas_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_ave_arr = S_arr / nstB
+
+    return S_ave_arr
+end
+
 function scanMeasStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nmeas_length = length(nmeas_l)
@@ -676,11 +808,17 @@ function scanMeasStagCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_ste
         for  t = 2:2:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
             idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
             idx_end = idx_start + nmeas - 1
-            measInt = zeros(Int,2^(2*nAsites))
+            # measInt = zeros(Int,2^(2*nAsites))
+            # for i = 1:2^(2*nAsites)
+            #     bitarr1 = stTraj[idx_start:idx_end,t-1,i]
+            #     bitarr2 = stTraj[idx_start:idx_end,t,i]
+            #     measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
+            # end
+            measInt = Vector{Vector{Bool}}(undef,0)
             for i = 1:2^(2*nAsites)
                 bitarr1 = stTraj[idx_start:idx_end,t-1,i]
                 bitarr2 = stTraj[idx_start:idx_end,t,i]
-                measInt[i] = bitarr_to_int(vcat(bitarr1,bitarr2))
+                push!(measInt,vcat(bitarr1,bitarr2))
             end
             measOccurance = countOccurance(measInt)
             S_arr[Int(t/2),meas_idx,stB_idx] += -dot(measOccurance./2^(2*nAsites), log2.(measOccurance)) + 2*nAsites
@@ -954,12 +1092,14 @@ function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,
         stB = BitArray(rand(Bool,nBsites))
         stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
         for (meas_idx, nmeas) in enumerate(nmeas_l)
-            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
-            idx_end = idx_start + nmeas - 1
-            measInt = zeros(Int,2^(nAsites))
+            # idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            # idx_end = idx_start + nmeas - 1
+            idx_start = 1
+            idx_end = nmeas-1
+            measInt = Vector{Vector{Bool}}(undef,0)
             for i = 1:2^(nAsites)
                 bitarr = stTraj[idx_start:idx_end,end,i]
-                measInt[i] = bitarr_to_int(bitarr)
+                push!(measInt,bitarr)
             end
             measOccurance = countOccurance(measInt)
             S_arr[meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
