@@ -1084,7 +1084,8 @@ function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,
     pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
     pertb_length = length(pertb_l)
 
-    S_arr = zeros(nmeas_length,pertb_length)
+    S_ave_arr = zeros(nmeas_length,pertb_length)
+    S_std_arr = zeros(nmeas_length,pertb_length)
     @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
         pertbProf = rand(nsteps,nAsites+nBsites)
         pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
@@ -1102,13 +1103,17 @@ function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,
                 push!(measInt,bitarr)
             end
             measOccurance = countOccurance(measInt)
-            S_arr[meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+            S_ave_arr[meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+            S_std_arr[meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^2
         end
     end
+    S_ave_arr = S_ave_arr ./ nstB
+    S_std_arr = S_std_arr ./ nstB
+    S_std_arr -= S_ave_arr.^2
+    S_std_arr = sqrt.(S_std_arr./nstB)
+    
 
-    S_arr = S_arr ./ nstB
-
-    return S_arr
+    return S_ave_arr, S_std_arr
 end
 
 function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)

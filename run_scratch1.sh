@@ -3,26 +3,26 @@
 #SBATCH --nodes=1                # node count
 #SBATCH --ntasks=1               # total number of tasks across all nodes
 #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
-#SBATCH --mem-per-cpu=4G         # memory per cpu-core (4G is default)
-#SBATCH --time=9:59:59          # total run time limit (HH:MM:SS)
+#SBATCH --mem-per-cpu=1G         # memory per cpu-core (4G is default)
+#SBATCH --time=23:59:59          # total run time limit (HH:MM:SS)
 #SBATCH --mail-type=end          # send email when job ends
-#SBATCH --array=0-9
+#SBATCH --array=0-99
 #SBATCH --mail-user=yz4281@princeton.edu
 
-let i=4
+let i=1
 let "nAsites=1"
-let "nBsites=100+20*i"
-let "nsteps=2*(nAsites+nBsites)"
-let nstB=100
-let nmeas_start=1
-let nmeas_end=nBsites-10
+let "nBsites=100*i"
+let "nsteps=50*i"
+let nstB=1
+let nmeas_start=5000
+let "nmeas_end=100*i"
 let nmeas_step=1
-let pertb_start=0.4
-let pertb_end=0.6
-let pertb_step=0.001
+let pertb_start=0.15
+let pertb_end=0.25
+let pertb_step=0.002
 
-let id=0+i
-let date=240323
+let id=0
+let date=240405
 
 echo $nAsites 
 echo $nBsites
