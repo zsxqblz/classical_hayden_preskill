@@ -11,6 +11,31 @@ function countOccurance(A)
     return [count(==(i), A) for i in unique(A)]
 end
 
+function ruleStep(ruleID,st,len)
+    ruleBit = reverse(digits(ruleID, base=2, pad=8))
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[1] == 1)
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[2] == 1)
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[3] == 1)
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[4] == 1)
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[5] == 1)
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[6] == 1)
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = (ruleBit[7] == 1)
+        else
+            new_st[i] = (ruleBit[8] == 1)
+        end
+    end
+    return new_st
+end
+
 function rule54Step(st,len)
     new_st = zeros(Bool,len)
     for i in 1:len
@@ -568,6 +593,32 @@ function rule60Step(st,len)
     return new_st
 end
 
+function rule60NoisyStep(st,len,pertb)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if pertb[i] != 0
+            new_st[i] = sign(pertb[i])==+1
+        elseif st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        else
+            new_st[i] = false
+        end
+    end
+    return new_st
+end
+
 function rule30NoisyStep(st,len,pertb)
     new_st = zeros(Bool,len)
     for i in 1:len
@@ -618,6 +669,32 @@ function rule110Step(st,len)
     return new_st
 end
 
+function rule110NoisyStep(st,len,pertb)
+    new_st = zeros(Bool,len)
+    for i in 1:len
+        if pertb[i] != 0
+            new_st[i] = sign(pertb[i])==+1
+        elseif st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif st[mod1(i-1,len)] && !st[i] && !st[mod1(i+1,len)]
+            new_st[i] = false
+        elseif !st[mod1(i-1,len)] && st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && st[i] && !st[mod1(i+1,len)]
+            new_st[i] = true
+        elseif !st[mod1(i-1,len)] && !st[i] && st[mod1(i+1,len)]
+            new_st[i] = true
+        else
+            new_st[i] = false
+        end
+    end
+    return new_st
+end
+
 function simCA(ruleStep,stB,nAsites,nBsites,nsteps)
     stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^nAsites)
     for stA_num = 0:2^nAsites-1
@@ -625,6 +702,19 @@ function simCA(ruleStep,stB,nAsites,nBsites,nsteps)
         st = vcat(stA, stB)
         for t = 1:nsteps
             stTraj[:,t,stA_num+1] = ruleStep(st,nAsites+nBsites)
+            st = stTraj[:,t,stA_num+1]
+        end
+    end
+    return stTraj
+end
+
+function simCA(ruleStep,ruleID,stB,nAsites,nBsites,nsteps)
+    stTraj = zeros(Bool,nAsites+nBsites,nsteps,2^nAsites)
+    for stA_num = 0:2^nAsites-1
+        stA = Bool.(digits(stA_num, base=2,pad=nAsites))
+        st = vcat(stA, stB)
+        for t = 1:nsteps
+            stTraj[:,t,stA_num+1] = ruleStep(ruleID,st,nAsites+nBsites)
             st = stTraj[:,t,stA_num+1]
         end
     end
@@ -766,6 +856,41 @@ function scanMeasCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,ns
     return S_ave_arr, S_std_arr
 end
 
+function scanMeasCA(ruleStep,ruleID,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+
+    S_arr = zeros(nsteps,nmeas_length,nstB)
+    @showprogress for stB_idx = 1:nstB
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simCA(ruleStep,ruleID,stB,nAsites,nBsites,nsteps)
+        for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            # measInt = zeros(Int,2^nAsites)
+            # for i = 1:2^nAsites
+            #     measInt[i] = bitarr_to_int(stTraj[idx_start:idx_end,t,i])
+            # end
+            measInt = Vector{Vector{Bool}}(undef,0)
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[idx_start:idx_end,end,i]
+                push!(measInt,bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[t,meas_idx,stB_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_ave_arr = zeros(nsteps,nmeas_length)
+    S_std_arr = zeros(nsteps,nmeas_length)
+    for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+        S_ave_arr[t,meas_idx] = mean(S_arr[t,meas_idx,:])
+        S_std_arr[t,meas_idx] = std(S_arr[t,meas_idx,:])
+    end
+
+    return S_ave_arr, S_std_arr
+end
+
 function scanMeasCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nmeas_length = length(nmeas_l)
@@ -774,6 +899,36 @@ function scanMeasCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,
     @showprogress for stB_idx = 1:nstB
         stB = BitArray(rand(Bool,nBsites))
         stTraj = simCA(ruleStep,stB,nAsites,nBsites,nsteps)
+        for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            idx_end = idx_start + nmeas - 1
+            # measInt = zeros(Int,2^nAsites)
+            # for i = 1:2^nAsites
+            #     measInt[i] = bitarr_to_int(stTraj[idx_start:idx_end,t,i])
+            # end
+            measInt = Vector{Vector{Bool}}(undef,0)
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[idx_start:idx_end,t,i]
+                push!(measInt,bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_arr[t,meas_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+        end
+    end
+
+    S_ave_arr = S_arr / nstB
+
+    return S_ave_arr
+end
+
+function scanMeasCAME(ruleStep,ruleID,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,nsteps,nstB)
+    nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    nmeas_length = length(nmeas_l)
+
+    S_arr = zeros(nsteps,nmeas_length)
+    @showprogress for stB_idx = 1:nstB
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simCA(ruleStep,ruleID,stB,nAsites,nBsites,nsteps)
         for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
             idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
             idx_end = idx_start + nmeas - 1
@@ -1047,35 +1202,76 @@ function scanMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_st
     return S_ave_arr, S_std_arr
 end
 
+# function scanMeasNoisyCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+#     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+#     nmeas_length = length(nmeas_l)
+#     pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+#     pertb_length = length(pertb_l)
+
+#     S_arr = zeros(nsteps,nmeas_length,pertb_length)
+#     @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+#         pertbProf = rand(nsteps,nAsites+nBsites)
+#         pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+#         pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+#         stB = BitArray(rand(Bool,nBsites))
+#         stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+#         for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+#             idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+#             idx_end = idx_start + nmeas - 1
+#             measInt = zeros(Int,2^(nAsites))
+#             for i = 1:2^(nAsites)
+#                 bitarr = stTraj[idx_start:idx_end,t,i]
+#                 measInt[i] = bitarr_to_int(bitarr)
+#             end
+#             measOccurance = countOccurance(measInt)
+#             S_arr[t,meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+#         end
+#     end
+
+#     S_arr = S_arr ./ nstB
+
+#     return S_arr
+# end
+
 function scanMeasNoisyCAME(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
     nmeas_length = length(nmeas_l)
     pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
     pertb_length = length(pertb_l)
 
-    S_arr = zeros(nsteps,nmeas_length,pertb_length)
+    S_ave_arr = zeros(nsteps,nmeas_length,pertb_length)
+    S_snd_arr = zeros(nsteps,nmeas_length,pertb_length)
+    S_trd_arr = zeros(nsteps,nmeas_length,pertb_length)
+    S_fth_arr = zeros(nsteps,nmeas_length,pertb_length)
     @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
         pertbProf = rand(nsteps,nAsites+nBsites)
         pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
         pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
         stB = BitArray(rand(Bool,nBsites))
         stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
-        for  t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
-            idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
-            idx_end = idx_start + nmeas - 1
-            measInt = zeros(Int,2^(nAsites))
+        for t = 1:nsteps, (meas_idx, nmeas) in enumerate(nmeas_l)
+            # idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            # idx_end = idx_start + nmeas - 1
+            idx_start = 1
+            idx_end = nmeas-1
+            measInt = Vector{Vector{Bool}}(undef,0)
             for i = 1:2^(nAsites)
                 bitarr = stTraj[idx_start:idx_end,t,i]
-                measInt[i] = bitarr_to_int(bitarr)
+                push!(measInt,bitarr)
             end
             measOccurance = countOccurance(measInt)
-            S_arr[t,meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+            S_ave_arr[t,meas_idx,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+            S_snd_arr[t,meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^2
+            S_trd_arr[t,meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^3
+            S_fth_arr[t,meas_idx,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^4
         end
     end
+    S_ave_arr = S_ave_arr ./ nstB
+    S_snd_arr = S_snd_arr ./ nstB
+    S_trd_arr = S_trd_arr ./ nstB
+    S_fth_arr = S_fth_arr ./ nstB    
 
-    S_arr = S_arr ./ nstB
-
-    return S_arr
+    return S_ave_arr, S_snd_arr, S_trd_arr, S_fth_arr
 end
 
 function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
@@ -1118,6 +1314,91 @@ function scanMeasNoisyCAOneDepth(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,
 
     return S_ave_arr, S_snd_arr, S_trd_arr, S_fth_arr
 end
+
+function scanMeasNoisyCAOneMeas(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+    # nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+    # nmeas_length = length(nmeas_l)
+    pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+    pertb_length = length(pertb_l)
+
+    S_ave_arr = zeros(nsteps,pertb_length)
+    S_snd_arr = zeros(nsteps,pertb_length)
+    S_trd_arr = zeros(nsteps,pertb_length)
+    S_fth_arr = zeros(nsteps,pertb_length)
+    @showprogress for (pertb_idx,pertb) in enumerate(pertb_l), stB_idx = 1:nstB
+        pertbProf = rand(nsteps,nAsites+nBsites)
+        pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+        pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+        stB = BitArray(rand(Bool,nBsites))
+        stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+        for t = 1:nsteps
+            # idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+            # idx_end = idx_start + nmeas - 1
+            measInt = Vector{Vector{Bool}}(undef,0)
+            for i = 1:2^(nAsites)
+                bitarr = stTraj[:,t,i]
+                push!(measInt,bitarr)
+            end
+            measOccurance = countOccurance(measInt)
+            S_ave_arr[t,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+            S_snd_arr[t,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^2
+            S_trd_arr[t,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^3
+            S_fth_arr[t,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^4
+        end
+    end
+    S_ave_arr = S_ave_arr ./ nstB
+    S_snd_arr = S_snd_arr ./ nstB
+    S_trd_arr = S_trd_arr ./ nstB
+    S_fth_arr = S_fth_arr ./ nstB    
+
+    return S_ave_arr, S_snd_arr, S_trd_arr, S_fth_arr
+end
+
+# function scanMeasNoisyCAOneMeasDist(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
+#     # nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
+#     # nmeas_length = length(nmeas_l)
+#     pertb_l = collect(range(pertb_start,stop=pertb_end,step=pertb_step))
+#     pertb_length = length(pertb_l)
+    
+#     # S_ave_arr = zeros(nsteps,pertb_length) 
+#     # S_snd_arr = zeros(nsteps,pertb_length)
+#     # S_trd_arr = zeros(nsteps,pertb_length)
+#     # S_fth_arr = zeros(nsteps,pertb_length)
+#     S_ave_arr = SharedArray{Float64}(nsteps,pertb_length) 
+#     S_snd_arr = SharedArray{Float64}(nsteps,pertb_length)
+#     S_trd_arr = SharedArray{Float64}(nsteps,pertb_length)
+#     S_fth_arr = SharedArray{Float64}(nsteps,pertb_length)
+#     @sync @distributed for pertb_idx = 1:length(pertb_l)
+#         pertb = pertb_l[pertb_idx]
+#         for stB_idx = 1:nstB
+#             pertbProf = rand(nsteps,nAsites+nBsites)
+#             pertbProf = Int.((sign.(pertbProf.-(1-pertb))./2).+0.5)
+#             pertbProf = rand([-1,1],nsteps,nAsites+nBsites).*pertbProf
+#             stB = BitArray(rand(Bool,nBsites))
+#             stTraj = simNoisyCA(ruleStep,stB,pertbProf,nAsites,nBsites,nsteps)
+#             for t = 1:nsteps
+#                 # idx_start = nAsites + Int(floor(nBsites/2 - nmeas/2))
+#                 # idx_end = idx_start + nmeas - 1
+#                 measInt = Vector{Vector{Bool}}(undef,0)
+#                 for i = 1:2^(nAsites)
+#                     bitarr = stTraj[:,t,i]
+#                     push!(measInt,bitarr)
+#                 end
+#                 measOccurance = countOccurance(measInt)
+#                 S_ave_arr[t,pertb_idx] += -dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites
+#                 S_snd_arr[t,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^2
+#                 S_trd_arr[t,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^3
+#                 S_fth_arr[t,pertb_idx] += (-dot(measOccurance./2^nAsites, log2.(measOccurance)) + nAsites)^4
+#             end
+#         end
+#     end
+#     S_ave_arr = S_ave_arr ./ nstB
+#     S_snd_arr = S_snd_arr ./ nstB
+#     S_trd_arr = S_trd_arr ./ nstB
+#     S_fth_arr = S_fth_arr ./ nstB    
+
+#     return S_ave_arr, S_snd_arr, S_trd_arr, S_fth_arr
+# end
 
 function scanRndMeasNoisyCA(ruleStep,nAsites,nBsites,nmeas_start,nmeas_end,nmeas_step,pertb_start,pertb_end,pertb_step,nsteps,nstB)
     nmeas_l = floor.(Int,collect(range(nmeas_start,stop=nmeas_end,step=nmeas_step)))
@@ -1314,6 +1595,25 @@ function save3DData(scanx_l,scany_l,scanz_l,ave_arr,std_arr,file_name)
     df_scanz.scanz_l = scanz_l
     df_data.ave_arr = collect(Iterators.flatten(ave_arr)) 
     df_data.std_arr = collect(Iterators.flatten(std_arr)) 
+
+    CSV.write(file_name*"_scanx.csv", df_scanx)
+    CSV.write(file_name*"_scany.csv", df_scany)
+    CSV.write(file_name*"_scanz.csv", df_scanz)
+    CSV.write(file_name*"_data.csv", df_data)
+end
+
+function save3DData(scanx_l,scany_l,scanz_l,data_ave_arr,data_snd_arr,data_trd_arr,data_fth_arr,file_name)
+    df_scanx = DataFrame()
+    df_scany = DataFrame()
+    df_scanz = DataFrame()
+    df_data = DataFrame()
+    df_scanx.scanx_l = scanx_l
+    df_scany.scany_l = scany_l
+    df_scanz.scanz_l = scanz_l
+    df_data.data_ave_l = collect(Iterators.flatten(data_ave_arr)) 
+    df_data.data_snd_l = collect(Iterators.flatten(data_snd_arr))
+    df_data.data_trd_l = collect(Iterators.flatten(data_trd_arr)) 
+    df_data.data_fth_l = collect(Iterators.flatten(data_fth_arr)) 
 
     CSV.write(file_name*"_scanx.csv", df_scanx)
     CSV.write(file_name*"_scany.csv", df_scany)
